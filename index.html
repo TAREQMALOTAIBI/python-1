@@ -1,0 +1,158 @@
+بالتأكيد، هذا هو الكود الكامل لملف `index.html` الذي يتوافق مع آخر نسخة من كود `app.py` الذي ناقشناه.
+
+ضعه في مجلد اسمه `templates` بجانب ملف `app.py`.
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محلل النسب المالية - تاسي</title>
+    <style>
+        /* CSS for styling the page */
+        body {
+            font-family: 'Tajawal', sans-serif; /* A nice Arabic font */
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1 {
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 95%;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9f5ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 5px;
+            text-align: right;
+            min-height: 50px;
+            line-height: 1.8;
+            transition: all 0.3s;
+        }
+        .loader {
+            display: none; /* Hidden by default */
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <!-- Google Fonts for Arabic font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>نموذج تحليل النسب المالية (TASI)</h1>
+        <p>اطرح سؤالاً حول أداء شركة (مثال: "حلل سيولة شركة أرامكو")</p>
+        <textarea id="queryInput" rows="3" placeholder="مثال: ما هي ربحية شركة سابك لعام 2023؟"></textarea>
+        <button onclick="getAnalysis()">تحليل</button>
+        <div class="loader" id="loader"></div>
+        <div id="result">
+            <!-- The analysis result will appear here -->
+        </div>
+    </div>
+
+    <script>
+        async function getAnalysis() {
+            const query = document.getElementById('queryInput').value;
+            const resultDiv = document.getElementById('result');
+            const loader = document.getElementById('loader');
+
+            if (!query) {
+                resultDiv.innerHTML = '<p style="color: red;">الرجاء إدخال سؤال أولاً.</p>';
+                return;
+            }
+
+            // Show loader and hide previous result
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+            resultDiv.style.padding = '0';
+
+
+            try {
+                // Call the backend API endpoint we created in Flask
+                // Using '/analyze' works for both local testing and when deployed on Vercel
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query }),
+                });
+
+                const data = await response.json();
+                
+                resultDiv.style.padding = '20px'; // Restore padding
+
+                if (response.ok) {
+                    resultDiv.innerHTML = data.analysis;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">حدث خطأ: ${data.error || 'خطأ غير معروف'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.style.padding = '20px'; // Restore padding
+                resultDiv.innerHTML = `<p style="color: red;">لا يمكن الاتصال بالخادم. هل تأكدت من تشغيل ملف app.py؟</p>`;
+                console.error('Error:', error);
+            } finally {
+                // Hide loader
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+```

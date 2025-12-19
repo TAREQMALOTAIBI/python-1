@@ -1,0 +1,6 @@
+# requirements.txt
+
+Flask
+pandas
+google-generativeai
+Flask-Cors 
